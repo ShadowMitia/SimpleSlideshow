@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<head>
+  <title>{%title%}</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="refresh" content="3600">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="sss/sss.min.js"></script>
+    <link rel="stylesheet" href="sss/sss.css" type="text/css" media="all">
+    <script>
+      jQuery(function($) {
+      $('.slider').sss({
+      slideShow : {%slideshow%}, // Set to false to prevent SSS from automatically animating.
+      startOn : {%startOn%}, // Slide to display first. Uses array notation (0 = first slide).
+      transition : {%transition%}, // Length (in milliseconds) of the fade transition.
+      speed : {%speed%}, // Slideshow speed in milliseconds.
+      showNav : {%showNav%} // Set to false to hide navigation arrows.
+      });
+      });
+    </script>
+  </head>
+  <body>
+    <div class="slider">
+    {%images%}
+  </div>
+</body>
+</html>

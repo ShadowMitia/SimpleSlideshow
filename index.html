@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<head>
+  <title>Slideshow MaPS</title>
+  <meta charset="utf-8" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="sss/sss.min.js"></script>
+    <link rel="stylesheet" href="sss/sss.css" type="text/css" media="all">
+    <script>
+      jQuery(function($) {
+      $('.slider').sss({
+      slideShow : true, // Set to false to prevent SSS from automatically animating.
+      startOn : 0, // Slide to display first. Uses array notation (0 = first slide).
+      transition : 1000, // Length (in milliseconds) of the fade transition.
+      speed : 3500, // Slideshow speed in milliseconds.
+      showNav : false // Set to false to hide navigation arrows.
+      });
+      });
+    </script>
+  </head>
+  <body>
+    <div class="slider">
+    <img src="images/LAN1410.png" alt="" />
+<img src="images/GJ10.png" alt="" />
+<img src="images/LAN1410.jpg" alt="" />
+
+  </div>
+</body>
+</html>
