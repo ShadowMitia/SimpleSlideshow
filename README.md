@@ -19,7 +19,9 @@ The file `example.py` shows an example script on how to use this project.
 
 - Python 3 and up supported. Should work under python 2 as well, but not fully tested.
 - SSS: https://github.com/intllgnt/SSS by @intllgnt. Comes packaged for convenience.
+- chromium: get it [here](https://www.chromium.org/getting-involved/download-chromium) or use a package manager such as "apt, yaourt, ...."
 
 # TODO
 - add a way to control slideshow parameters (e.g. command line parameters)
 - custom path for `images` directory, multiple input folders?
+- add support for other browsers
