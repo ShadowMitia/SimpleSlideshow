@@ -4,7 +4,9 @@ import subprocess
 
 def main():
 
-    subprocess.call(["chromium", "--kiosk", "index.html", "--incognito"])
+    subprocess.Popen(["chromium", "--kiosk", "index.html", "--incognito"])
+    # you can add other windows
+
     while True:
         generate_page.main()
         time.sleep(3500)  # update every 5 minutes
