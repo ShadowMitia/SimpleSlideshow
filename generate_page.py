@@ -47,10 +47,9 @@ def main():
     directory_list = os.listdir(img_folder)
     images = []
     for entry in directory_list:
-        if entry.split(".")[1] in authorized_extensions:
+        if entry.split(".")[-1] in authorized_extensions:
             images.append(entry)
 
-    print(images)
     html_images = generate_img_html(images)
 
     html_page = ""

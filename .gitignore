@@ -157,3 +157,7 @@ $RECYCLE.BIN/
 *.lnk
 
 index.html
+
+images/
+!images/.gitkeep
+
