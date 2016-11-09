@@ -43,7 +43,7 @@ def replace_tags(html_page, html_images):
 
 
 # here be all the magic
-def main():
+def generate_page():
     directory_list = os.listdir(img_folder)
     images = []
     for entry in directory_list:
@@ -62,4 +62,4 @@ def main():
         f.write(html_page)
 
 if __name__ == '__main__':
-    main()
+    generate_page()
