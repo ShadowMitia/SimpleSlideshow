@@ -51,7 +51,7 @@ def main():
                         help="path to destination folder where images are stored",
                         default=os.path.join(os.path.dirname(os.path.abspath(__file__)),"images"))
     args = parser.parse_args()
-    generate_page.img_folder = args.dest
+    generate_page.img_folder =  args.dest
     # grab firefox browser depending of system
     # NOT FULLY TESTED
     web_browser = ""
