@@ -22,8 +22,9 @@ authorized_extensions = ["jpg", "jpeg", "tiff", "png", "bmp", "gif"]
 # pass in the image names, construct the proper html <img> sequence
 def generate_img_html(images):
     imgs = ""
+    path = os.path.basename(img_folder)
     for i in images:
-        imgs += "<img src=\"images/{}\" alt=\"\" />\n".format(i)
+        imgs += "<img src=\""+path+"/"+i+"\" alt=\"\" />\n"
     return imgs
 
 
@@ -45,6 +46,7 @@ def replace_tags(html_page, html_images):
 # here be all the magic
 def generate_page():
     directory_list = os.listdir(img_folder)
+    directory = os.path.dirname(img_folder)
     images = []
     for entry in directory_list:
         if entry.split(".")[-1] in authorized_extensions:
@@ -53,12 +55,12 @@ def generate_page():
     html_images = generate_img_html(images)
 
     html_page = ""
-    with open("template.html", "r") as f:
+    with open(os.path.join(directory, "template.html"), "r") as f:
         html_page = f.read()
 
     html_page = replace_tags(html_page, html_images)
 
-    with open("index.html", "w") as f:
+    with open(os.path.join(directory, "index.html"), "w") as f:
         f.write(html_page)
 
 if __name__ == '__main__':
