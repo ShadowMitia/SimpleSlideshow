@@ -10,28 +10,25 @@ from shutil import copy
 import platform
 import argparse
 
-def copy_image(file, list_files, path_dst):
-    if file not in list_files and file.split(".")[-1] in generate_page.authorized_extensions:
-        print("Adding " + file)
-        dst = os.path.join(os.path.dirname(file), path_dst)
-        copy(file, dst)
+def copy_image(f, list_files, path_dst):
+    if f not in list_files and f.split(".")[-1] in generate_page.authorized_extensions:
+        print("Adding " + f)
+        dst = os.path.join(os.path.dirname(f), path_dst)
+        copy(f, dst)
 			
-def remove_image(file, list_files, path_dst):
-        if file.split(".")[-1] in generate_page.authorized_extensions and file not in list_files:
-            print("Removing " + file)
-            os.remove(os.path.join(path_dst, os.path.basename(file)))
+def remove_image(f, list_files, path_dst):
+        if f.split(".")[-1] in generate_page.authorized_extensions and f not in list_files:
+            print("Removing " + f)
+            os.remove(os.path.join(path_dst, os.path.basename(f)))
 
 def sync_images(file_list, destination_folder):
     for f in file_list:
-        copy_image(f, file_list, destination_folder)
-        remove_image(f, file_list, destination_folder)
+        copy_image(f, os.listdir(destination_folder), destination_folder)
+        remove_image(f, os.listdir(destination_folder), destination_folder)
 
 def get_list_files(path_list):
-    l =[]
-    for el in path_list:
-        for e in os.listdir(el):
-            l.append(os.path.join(el, e))
-    return l
+    return [os.path.join(el, e) for el in path_list for e in os.listdir(el)]
+
 
 def main():
 
@@ -60,19 +57,21 @@ def main():
     else:
         web_browser = os.path.join("C:\Program Files","Mozilla Firefox","firefox.exe")
 
-    # Grab the images if there are new ones, and update webpage
-    # This is useful when
-    # 1) Starting for the first time this system
-    # 2) If the slideshow has stopped for more than the refresh
-    sync_images(get_list_files(args.folder), args.dest)
+    # Grab the images if there are new ones, and update webpage at least once before start
+    files = get_list_files(args.folder)
+    print(files)
+    sync_images(files, args.dest)
     generate_page.generate_page()
 
     # Open the webpage containing the slideshow
     # Firefox doesn't have a kiosk mode, so you need to add a plugin for it
     wb_process = subprocess.Popen([web_browser, os.path.join(os.path.dirname(os.path.abspath(__file__)),"index.html")])
     while True:
-        time = len(args.folder) * (generate_page.speed + generate_page.transition)
-        sleep(1800 if time < 1800 else time) # update every 30 minutes by default, longer if more images
+        time = 1800  # update every 30 minutes by default, longer if more images
+        new_time = len(args.folder) * (generate_page.speed + generate_page.transition)
+        if new_time > time:
+            time = new_time
+        sleep(time)
         sync_images(get_list_files(args.folder), args.dest) # update images if new wb_process.terminate()
         generate_page.generate_page() # generate the new webpage
 
