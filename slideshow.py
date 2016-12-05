@@ -121,7 +121,7 @@ class SlideshowManager:
         while True:
             images_manager.sync_folders()
             generator.generate(images_manager.images)
-            time.sleep(1)
+            time.sleep(60 * 5) # Update roughly every 5 minutes
 
 
 if __name__ == '__main__':
