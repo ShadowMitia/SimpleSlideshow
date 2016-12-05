@@ -1,36 +1,36 @@
 <!DOCTYPE html>
 <head>
-  <title>{%title%}</title>
-  <meta charset="utf-8" />
-  <meta http-equiv="refresh" content="1800">
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-  <script src="sss/sss.min.js"></script>
-  <link rel="stylesheet" href="sss/sss.css" type="text/css" media="all">
-  <script>
-    jQuery(function($) {
-    $('.slider').sss({
-    slideShow : {%slideshow%}, // Set to false to prevent SSS from automatically animating.
-    startOn : {%startOn%}, // Slide to display first. Uses array notation (0 = first slide).
-    transition : {%transition%}, // Length (in milliseconds) of the fade transition.
-    speed : {%speed%}, // Slideshow speed in milliseconds.
-    showNav : {%showNav%} // Set to false to hide navigation arrows.
-    });
-    });
-  </script>  
-  <style type="text/css">
-   .slider img {
-       position: absolute;
-       top: 50%;
-       left: 50%;
-       margin-right: -50%;
-       transform: translate(-50%, -50%);
+    <title>{%title%}</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="{%refresh-rate%}">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="SSS/sss/sss.min.js"></script>
+    <link rel="stylesheet" href="SSS/sss/sss.css" type="text/css" media="all">
+    <script>
+     jQuery(function($) {
+	 $('#slider').sss({
+	     slideShow : {%slideshow%}, // Set to false to prevent SSS from automatically animating.
+	     startOn : {%startOn%}, // Slide to display first. Uses array notation (0 = first slide).
+	     transition : {%transition%}, // Length (in milliseconds) of the fade transition.
+	     speed : {%speed%}, // Slideshow speed in milliseconds.
+	     showNav : {%showNav%} // Set to false to hide navigation arrows.
+	 });
+     });
+    </script>
 
-   }
-  </style>
+    <style>
+	 #slider img {
+	     height: 98vh;
+	     display: block;
+	     margin-left: auto;
+	     margin-right: auto;
+	     object-fit: scale-down;
+	 }
+    </style>
 </head>
 <body>
-  <div class="slider">
-    {%images%}
-  </div>
+    <div id="slider">
+	{%images%}
+    </div>
 </body>
 </html>

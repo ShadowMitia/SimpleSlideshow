@@ -1,79 +1,129 @@
 #! python
 
-# Author: Dimitri Belopopsky
+# Main program file
 
-from time import sleep
-import generate_page
 import os
-import subprocess
-from shutil import copy
-import platform
+from os import path
+import time
+import shutil
 import argparse
 
-def copy_image(f, list_files, path_dst):
-    if f not in list_files and f.split(".")[-1] in generate_page.authorized_extensions:
-        print("Adding " + f)
-        dst = os.path.join(os.path.dirname(f), path_dst)
-        copy(f, dst)
-			
-def remove_image(f, list_files, path_dst):
-        if f.split(".")[-1] in generate_page.authorized_extensions and f not in list_files:
-            print("Removing " + f)
-            os.remove(os.path.join(path_dst, os.path.basename(f)))
+class PageGenerator:
 
-def sync_images(file_list, destination_folder):
-    for f in file_list:
-        copy_image(f, os.listdir(destination_folder), destination_folder)
-        remove_image(f, os.listdir(destination_folder), destination_folder)
+    def __init__(self, images_folder, title = "SlideShow",
+                 transition = 1000,
+                 speed = 3500):
+        self.title = title
+        self.transition = transition
+        self.speed = 3500
+        self.images_folder = images_folder
+        self.refresh_rate = len(images_folder) * (self.transition + self.speed)
 
-def get_list_files(path_list):
-    return [os.path.join(el, e) for el in path_list for e in os.listdir(el)]
+    def _replace_tags(self, html_page, image_tags, num_tags):
+        refresh_rate = num_tags * ((self.transition + self.speed) / 1000)
+        refresh_rate = refresh_rate if refresh_rate > 0 else 30
+        html_page = html_page.replace("{%title%}", self.title)
+        html_page = html_page.replace("{%refresh-rate%}", str(refresh_rate))
+        html_page = html_page.replace("{%slideshow%}", "true")
+        html_page = html_page.replace("{%startOn%}", str(0))
+        html_page = html_page.replace("{%speed%}", str(self.speed))
+        html_page = html_page.replace("{%showNav%}", "false")
+        html_page = html_page.replace("{%transition%}", str(self.transition))
+        html_page = html_page.replace("{%images%}", image_tags)
+        return html_page
+
+    def _generate_img_tags(self, images):
+        generate_tags = ""
+        for img in images:
+            generate_tags += "<img src='{}/{}' />\n".format(self.images_folder, img)
+        return generate_tags
+
+    def generate(self, images):
+        tags = self._generate_img_tags(images)
+        dir_path = path.dirname(self.images_folder)
+        template_path = path.join(dir_path, "template.html")
+        index_path    = path.join(dir_path, "index.html")
+        with open(template_path, "r") as f, open(index_path, "w") as f2:
+            html_template = f.read()
+            html_page = self._replace_tags(html_template, tags, len(images))
+            f2.write(html_page)
 
 
-def main():
+class ImageManager():
 
-    # parse input parameters
-    parser = argparse.ArgumentParser(description="Simple Slideshow")
-    parser.add_argument('-f',
-                        '--folder',
-                        metavar=('folder_path'),
-                        type=str,
-                        help="path to folder with images to show",
-                        action="append",
-                        required=True)
-    parser.add_argument('-d',
-                        '--dest',
-                        metavar=('destination_folder'),
-                        type=str,
-                        help="path to destination folder where images are stored",
-                        default=os.path.join(os.path.dirname(os.path.abspath(__file__)),"images"))
-    args = parser.parse_args()
-    generate_page.img_folder =  args.dest
-    # grab firefox browser depending of system
-    # NOT FULLY TESTED
-    web_browser = ""
-    if platform.system() in ["Linux", "Darwin"]:
-        web_browser = "firefox"
-    else:
-        web_browser = os.path.join("C:\Program Files","Mozilla Firefox","firefox.exe")
+    def __init__(self, input_dirs, dest_dir):
+        self.images = []
+        self.input_dirs = []
+        self.input_dirs_mtime = []
+        for el in input_dirs:
+            self.input_dirs.append(el)
+            self.input_dirs_mtime.append(path.getmtime(el))
+        self.dest_dir = dest_dir
+        self.authorized_extensions = ["jpg", "jpeg", "tiff", "png", "bmp", "gif"]
+        for el in self.input_dirs:
+            self._get_remote_images(el)
 
-    # Grab the images if there are new ones, and update webpage at least once before start
-    files = get_list_files(args.folder)
-    print(files)
-    sync_images(files, args.dest)
-    generate_page.generate_page()
+    def sync_folders(self):
 
-    # Open the webpage containing the slideshow
-    # Firefox doesn't have a kiosk mode, so you need to add a plugin for it
-    wb_process = subprocess.Popen([web_browser, os.path.join(os.path.dirname(os.path.abspath(__file__)),"index.html")])
-    while True:
-        time = 1800  # update every 30 minutes by default, longer if more images
-        new_time = len(args.folder) * (generate_page.speed + generate_page.transition)
-        if new_time > time:
-            time = new_time
-        sleep(time)
-        sync_images(get_list_files(args.folder), args.dest) # update images if new wb_process.terminate()
-        generate_page.generate_page() # generate the new webpage
+        def update_images(dir_path):
+            self._get_remote_images(dir_path)
+            return path.getmtime(dir_path)
+        self.input_dirs_mtime = [update_images(self.input_dirs[i]) if path.getmtime(self.input_dirs[i]) > self.input_dirs_mtime[i] else self.input_dirs_mtime[i] for i in range(len(self.input_dirs)) ]
+        self._remove_local_images()
+
+    def _get_remote_images(self, path):
+        img_list = os.listdir(path)
+        for el in img_list:
+            if self._is_valid_image(el) and el not in self.images:
+                print("Adding: " + el)
+                self.images.append(el)
+                shutil.copy(os.path.join(path, el), self.dest_dir)
+        for el in self.images:
+            if el not in img_list:
+                self.images.remove(el)
+
+    def _remove_local_images(self):
+        img_list = os.listdir(self.dest_dir)
+        for el in img_list:
+            if el not in self.images:
+                print("Removing: " + el)
+                os.remove(path.join(self.dest_dir, el))
+
+    def _is_valid_image(self, img):
+        return img.split(".")[-1] in self.authorized_extensions
+
+
+class SlideshowManager:
+
+    def __init__(self):
+        self.argument_parser = argparse.ArgumentParser(description="Simple Slideshow")
+        self.argument_parser.add_argument('-f',
+                                     '--folder',
+                                     metavar=('input_folder_paths'),
+                                     type=str,
+                                     help="path to folder with images to show",
+                                     action="append",
+                                     required=True)
+        self.argument_parser.add_argument('-d',
+                                     '--dest',
+                                     metavar=('destination_folder'),
+                                     type=str,
+                                     help="path to destination folder where images are stored (default is 'images'",
+                                     default=os.path.join(os.path.dirname(os.path.abspath(__file__)),"images"))
+        self.input_args = self.argument_parser.parse_args()
+
+    def run(self):
+
+        images_manager = ImageManager(self.input_args.folder, self.input_args.dest)
+        images_manager.sync_folders()
+
+        generator = PageGenerator(self.input_args.dest, "MaPS Slideshow")
+        while True:
+            images_manager.sync_folders()
+            generator.generate(images_manager.images)
+            time.sleep(1)
+
 
 if __name__ == '__main__':
-    main()
+    slideshow = SlideshowManager()
+    slideshow.run()

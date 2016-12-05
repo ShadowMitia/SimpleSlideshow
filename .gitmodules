@@ -1,0 +1,3 @@
+[submodule "SSS"]
+	path = SSS
+	url = git@github.com:intllgnt/SSS.git
