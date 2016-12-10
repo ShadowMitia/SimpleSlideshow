@@ -15,7 +15,7 @@ class PageGenerator:
                  speed = 3500):
         self.title = title
         self.transition = transition
-        self.speed = 3500
+        self.speed = speed
         self.images_folder = images_folder
         self.refresh_rate = len(images_folder) * (self.transition + self.speed)
 
@@ -35,7 +35,7 @@ class PageGenerator:
     def _generate_img_tags(self, images):
         generate_tags = ""
         for img in images:
-            generate_tags += "<img src='{}/{}' />\n".format(self.images_folder, img)
+            generate_tags += "<img src=\"{}\" />\n".format(path.join(path.basename(self.images_folder), img))
         return generate_tags
 
     def generate(self, images):
@@ -78,9 +78,6 @@ class ImageManager():
                 print("Adding: " + el)
                 self.images.append(el)
                 shutil.copy(os.path.join(path, el), self.dest_dir)
-        for el in self.images:
-            if el not in img_list:
-                self.images.remove(el)
 
     def _remove_local_images(self):
         img_list = os.listdir(self.dest_dir)
@@ -117,7 +114,7 @@ class SlideshowManager:
         images_manager = ImageManager(self.input_args.folder, self.input_args.dest)
         images_manager.sync_folders()
 
-        generator = PageGenerator(self.input_args.dest, "MaPS Slideshow")
+        generator = PageGenerator(self.input_args.dest, "MaPS Slideshow", speed=6000)
         while True:
             images_manager.sync_folders()
             generator.generate(images_manager.images)

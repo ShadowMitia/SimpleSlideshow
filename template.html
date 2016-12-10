@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="SSS/sss/sss.css" type="text/css" media="all">
     <script>
      jQuery(function($) {
-	 $('#slider').sss({
+	 $('.slider').sss({
 	     slideShow : {%slideshow%}, // Set to false to prevent SSS from automatically animating.
 	     startOn : {%startOn%}, // Slide to display first. Uses array notation (0 = first slide).
 	     transition : {%transition%}, // Length (in milliseconds) of the fade transition.
@@ -19,7 +19,7 @@
     </script>
 
     <style>
-	 #slider img {
+	 .slider img {
 	     height: 98vh;
 	     display: block;
 	     margin-left: auto;
@@ -29,7 +29,7 @@
     </style>
 </head>
 <body>
-    <div id="slider">
+    <div class="slider">
 	{%images%}
     </div>
 </body>
